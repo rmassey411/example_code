@@ -1,0 +1,10 @@
+---
+- name: Print credenetials
+	hosts: all
+	gather_facts: true
+	become: false
+
+	tasks:
+		- name: Print custom credential
+			ansible.builtin.debug:
+				msg: "This is my vcenter username: {{ MY_VCENTER_USERNAME }}"
