@@ -1,0 +1,8 @@
+---
+roles:
+# Added for Linux tasks
+ - src: git+https://github.com/rmassey411/ans_sysadmin_linux_role.git
+   scm: git
+# Added for Windows tasks
+ - src: git+https://github.com/rmassey411/ans_sysadmin_windows_role.git
+   scm: git
