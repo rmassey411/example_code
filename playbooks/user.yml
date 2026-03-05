@@ -1,7 +1,7 @@
 ---
 - name: Create user with custom UID and non-expiring password
   hosts: all
-  gather_facts: yes
+  gather_facts: true
   
   vars:
     username: "testuser"
@@ -19,7 +19,7 @@
         shell: /bin/bash
         createhome: yes
         state: present
-      become: yes
+      become: true
       register: user_creation_result
     
     - name: Display user creation result

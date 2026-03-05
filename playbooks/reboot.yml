@@ -1,0 +1,21 @@
+---
+- name: Reboot host
+  hosts: all
+  gather_facts: true
+  
+  tasks:
+    - name: Display reboot message
+      ansible.builtin.debug:
+        msg: "Rebooting host {{ inventory_hostname }}..."
+    
+    - name: Reboot the host
+      ansible.builtin.reboot:
+        msg: "System reboot initiated by Ansible"
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+      become: true
+    
+    - name: Verify host is back online
+      ansible.builtin.debug:
+        msg: "Host {{ inventory_hostname }} successfully rebooted and online"
