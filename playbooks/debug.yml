@@ -1,5 +1,5 @@
 ---
-- name: Credential Example
+- name: Printing examples
   hosts: all
   gather_facts: false
 
