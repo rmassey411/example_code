@@ -1,0 +1,28 @@
+---
+- name: Create user with custom UID and non-expiring password
+  hosts: all
+  gather_facts: yes
+  
+  vars:
+    username: "testuser"
+    uid: 2000
+    # Replace with hashed password (use: openssl passwd -6 "yourpassword")
+    password_hash: "$6$rounds=656000$abcdefghijklmnop$KwKJPp8EZGvKzJhN5X8Q5w0L8m5P8y9Z0r4J2bQ6nT7sC9x3V0w"
+  
+  tasks:
+    - name: Create user with custom UID and non-expiring password
+      ansible.builtin.user:
+        name: "{{ username }}"
+        uid: "{{ uid }}"
+        password: "{{ password_hash }}"
+        expires: -1
+        shell: /bin/bash
+        createhome: yes
+        state: present
+      become: yes
+      register: user_creation_result
+    
+    - name: Display user creation result
+      ansible.builtin.debug:
+        msg: "User {{ username }} (UID: {{ uid }}) created successfully with non-expiring password"
+      when: user_creation_result.changed
