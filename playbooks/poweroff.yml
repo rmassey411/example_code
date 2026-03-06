@@ -1,0 +1,23 @@
+---
+- name: Shutdown host based on operating system
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Shutdown notice
+      ansible.builtin.debug:
+        msg: "Shutting down host {{ inventory_hostname }}"
+
+    - name: Shutdown Linux host
+      ansible.builtin.command: shutdown -h now
+      become: true
+      when: ansible_system == "Linux"
+
+    - name: Shutdown Windows host
+      ansible.windows.win_command: shutdown.exe /s /f /t 5
+      async: 10
+      poll: 0
+      become: true
+      when: ansible_system == "Win32NT"
+
+

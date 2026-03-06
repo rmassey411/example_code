@@ -1,0 +1,34 @@
+---
+- name: Power off vCenter VM
+  hosts: localhost
+  gather_facts: no
+  
+  vars:
+    vcenter_hostname: "vcenter.example.com"
+    vcenter_username: "{{ lookup('env', 'VCENTER_USERNAME') }}"
+    vcenter_password: "{{ lookup('env', 'VCENTER_PASSWORD') }}"
+    vcenter_port: 443
+    vm_name: "my-vm"
+    validate_certs: false
+  
+  tasks:
+    - name: Power off VM using vmware.vmware collection
+      vmware.vmware.guest_powerstate:
+        hostname: "{{ vcenter_hostname }}"
+        port: "{{ vcenter_port }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: "{{ validate_certs }}"
+        name: "{{ vm_name }}"
+        state: powered-off
+        force: false
+      register: vm_poweroff_result
+    
+    - name: Display power off result
+      ansible.builtin.debug:
+        msg: "VM {{ vm_name }} powered off successfully"
+      when: vm_poweroff_result.changed
+    
+    - name: Verify VM power state
+      ansible.builtin.debug:
+        msg: "VM {{ vm_name }} current power state: powered-off"

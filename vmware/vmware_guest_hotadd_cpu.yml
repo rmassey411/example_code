@@ -1,0 +1,52 @@
+---
+- name: Hot add CPU to VM using vmware.vmware collection
+  hosts: localhost
+  gather_facts: no
+  
+  vars:
+    vcenter_hostname: "vcenter.example.com"
+    vcenter_username: "{{ lookup('env', 'VCENTER_USERNAME') }}"
+    vcenter_password: "{{ lookup('env', 'VCENTER_PASSWORD') }}"
+    vcenter_port: 443
+    vm_name: "my-vm"
+    num_cpus: 4
+    num_cpu_cores_per_socket: 2
+    validate_certs: false
+  
+  tasks:
+    - name: Get current VM hardware info
+      vmware.vmware.guest_info:
+        hostname: "{{ vcenter_hostname }}"
+        port: "{{ vcenter_port }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: "{{ validate_certs }}"
+        name: "{{ vm_name }}"
+      register: vm_info
+    
+    - name: Display current CPU count
+      ansible.builtin.debug:
+        msg: "Current CPU count: {{ vm_info.instance.hw_processor_count }}"
+    
+    - name: Hot add CPU to VM
+      vmware.vmware.guest_config:
+        hostname: "{{ vcenter_hostname }}"
+        port: "{{ vcenter_port }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: "{{ validate_certs }}"
+        name: "{{ vm_name }}"
+        hardware:
+          num_cpus: "{{ num_cpus }}"
+          num_cpu_cores_per_socket: "{{ num_cpu_cores_per_socket }}"
+          hotadd_cpu: true
+      register: hotadd_result
+    
+    - name: Display hot add result
+      ansible.builtin.debug:
+        msg: "VM {{ vm_name }} CPU hot added successfully. New CPU count: {{ num_cpus }}"
+      when: hotadd_result.changed
+    
+    - name: Verify VM CPU configuration
+      ansible.builtin.debug:
+        msg: "VM {{ vm_name }} is configured with {{ num_cpus }} CPUs and hot add is enabled"

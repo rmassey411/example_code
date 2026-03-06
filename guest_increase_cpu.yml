@@ -1,0 +1,45 @@
+---
+- name: Increase CPU for VMware guest
+  hosts: localhost
+  gather_facts: no
+  
+  vars:
+    vcenter_hostname: "vcenter.example.com"
+    vcenter_username: "{{ lookup('env', 'VCENTER_USERNAME') }}"
+    vcenter_password: "{{ lookup('env', 'VCENTER_PASSWORD') }}"
+    vcenter_port: 443
+    vm_name: "my-vm"
+    num_cpus: 4
+    validate_certs: false
+  
+  tasks:
+    - name: Get current VM info
+      vmware.vmware.guest_info:
+        hostname: "{{ vcenter_hostname }}"
+        port: "{{ vcenter_port }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: "{{ validate_certs }}"
+        name: "{{ vm_name }}"
+      register: vm_info
+    
+    - name: Display current CPU count
+      ansible.builtin.debug:
+        msg: "Current CPU count: {{ vm_info.instance.hw_processor_count }}"
+    
+    - name: Increase CPU for guest
+      vmware.vmware.guest_config:
+        hostname: "{{ vcenter_hostname }}"
+        port: "{{ vcenter_port }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: "{{ validate_certs }}"
+        name: "{{ vm_name }}"
+        hardware:
+          num_cpus: "{{ num_cpus }}"
+      register: cpu_increase_result
+    
+    - name: Display CPU increase result
+      ansible.builtin.debug:
+        msg: "VM {{ vm_name }} CPU increased to {{ num_cpus }} CPUs"
+      when: cpu_increase_result.changed

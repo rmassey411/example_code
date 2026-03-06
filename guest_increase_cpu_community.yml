@@ -1,0 +1,37 @@
+---
+- name: Increase VM CPU using community.vmware.vmware_guest
+  hosts: localhost
+  gather_facts: no
+  
+  vars:
+    vcenter_hostname: "vcenter.example.com"
+    vcenter_username: "{{ lookup('env', 'VCENTER_USERNAME') }}"
+    vcenter_password: "{{ lookup('env', 'VCENTER_PASSWORD') }}"
+    vm_name: "my-vm"
+    num_cpus: 4
+    num_cpu_cores_per_socket: 2
+    validate_certs: false
+  
+  tasks:
+    - name: Increase CPU for VM
+      community.vmware.vmware_guest:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: "{{ validate_certs }}"
+        name: "{{ vm_name }}"
+        hardware:
+          num_cpus: "{{ num_cpus }}"
+          num_cpu_cores_per_socket: "{{ num_cpu_cores_per_socket }}"
+        state: present
+      register: cpu_increase_result
+    
+    - name: Display CPU increase result
+      ansible.builtin.debug:
+        msg: "VM {{ vm_name }} CPU configuration updated to {{ num_cpus }} CPUs with {{ num_cpu_cores_per_socket }} cores per socket"
+      when: cpu_increase_result.changed
+    
+    - name: Verify VM configuration
+      ansible.builtin.debug:
+        msg: "VM {{ vm_name }} is now configured with {{ num_cpus }} CPUs"
+      when: not cpu_increase_result.changed

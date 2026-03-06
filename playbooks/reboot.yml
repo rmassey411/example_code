@@ -1,21 +1,23 @@
 ---
-- name: Reboot host
+- name: Reboot host based on operating system
   hosts: all
   gather_facts: true
-  
+
   tasks:
-    - name: Display reboot message
-      ansible.builtin.debug:
-        msg: "Rebooting host {{ inventory_hostname }}..."
-    
-    - name: Reboot the host
+    - name: Reboot Linux host
       ansible.builtin.reboot:
-        msg: "System reboot initiated by Ansible"
+        msg: "Rebooting Linux host {{ inventory_hostname }}"
         reboot_timeout: 600
         pre_reboot_delay: 0
         post_reboot_delay: 30
       become: true
-    
-    - name: Verify host is back online
-      ansible.builtin.debug:
-        msg: "Host {{ inventory_hostname }} successfully rebooted and online"
+      when: ansible_system == "Linux"
+
+    - name: Reboot Windows host
+      ansible.windows.win_reboot:
+        msg: "Rebooting Windows host {{ inventory_hostname }}"
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+      become: true
+      when: ansible_system == "Win32NT"
